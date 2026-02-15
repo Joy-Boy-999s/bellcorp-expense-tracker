@@ -17,11 +17,22 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes')); // Add dashboard route
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
+const path = require('path');
 
-app.use(require('./middleware/errorMiddleware').errorHandler); // Add error handler
+// Serve frontend
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../../client/dist')));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../../client', 'dist', 'index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.send('API is running...');
+    });
+}
+
+app.use(require('./middleware/errorMiddleware').errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
